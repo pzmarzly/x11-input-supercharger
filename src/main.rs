@@ -16,7 +16,7 @@ mod xinput;
 use lazy_panic::formatter;
 
 use std::io::Read;
-use std::sync::mpsc::channel;
+use std::sync::mpsc::Receiver;
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -46,22 +46,12 @@ fn main() {
         panic!("xinput_grep pattern did not match any input device");
     }
 
-    let mut scroll = if let Some(ref cfg) = config.scroll {
-        Some(Scroll::new(cfg))
-    } else {
-        None
-    };
-    let mut keyboard_click = if let Some(ref cfg) = config.keyboard_click {
-        Some(KeyboardClick::new(cfg))
-    } else {
-        None
-    };
+    let mut scroll = config.scroll.as_ref().map(Scroll::new);
+    let mut keyboard_click = config.keyboard_click.as_ref().map(KeyboardClick::new);
 
-    let kill = if let Some(ref keyboard_click) = keyboard_click {
-        keyboard_click.reset_keys_on_ctrlc()
-    } else {
-        channel().1
-    };
+    let kill = keyboard_click
+        .as_ref()
+        .map(KeyboardClick::reset_keys_on_ctrlc);
 
     let mut child = xinput::test_xi2();
 
@@ -69,7 +59,12 @@ fn main() {
     loop {
         let num = child.read(&mut buf).unwrap();
         if num == 0 {
-            if kill.try_recv().is_ok() {
+            if kill
+                .as_ref()
+                .map(Receiver::try_recv)
+                .filter(Result::is_ok)
+                .is_some()
+            {
                 break;
             }
             sleep(MOMENT);
@@ -78,12 +73,10 @@ fn main() {
 
         let lines = String::from_utf8_lossy(&buf[0..num]);
         for line in lines.split('\n') {
-            if let Some(ref mut scroll) = scroll {
-                scroll.parse_line(line, &devices);
-            }
-            if let Some(ref mut keyboard_click) = keyboard_click {
-                keyboard_click.parse_line(line, &devices);
-            }
+            scroll.as_mut().map(|x| x.parse_line(line, &devices));
+            keyboard_click
+                .as_mut()
+                .map(|x| x.parse_line(line, &devices));
         }
     }
 }
