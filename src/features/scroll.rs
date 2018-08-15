@@ -99,11 +99,15 @@ impl Scroll {
 
                     const THRESHOLD: i64 = 1_000_000_000;
                     if progress_towards_next_event > THRESHOLD {
-                        xdotool::scroll_down();
-                        progress_towards_next_event -= THRESHOLD;
+                        while progress_towards_next_event > THRESHOLD {
+                            xdotool::scroll_down();
+                            progress_towards_next_event -= THRESHOLD;
+                        }
                     } else if progress_towards_next_event < -THRESHOLD {
-                        xdotool::scroll_up();
-                        progress_towards_next_event += THRESHOLD;
+                        while progress_towards_next_event < -THRESHOLD {
+                            xdotool::scroll_up();
+                            progress_towards_next_event += THRESHOLD;
+                        }
                     }
                 }
             });

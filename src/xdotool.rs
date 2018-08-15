@@ -30,7 +30,9 @@ pub fn scroll_down() {
 
 fn scroll(direction: &str) {
     Command::new("xdotool")
-        .arg("click")
+        .arg("mousedown")
+        .arg(direction)
+        .arg("mouseup")
         .arg(direction)
         .status()
         .unwrap();
