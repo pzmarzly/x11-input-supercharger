@@ -1,6 +1,6 @@
 [package]
 name = "x11-input-supercharger"
-version = "0.1.1"
+version = "0.2.0"
 description = "Adds system-wide Windows-like scrolling mode and conditional clicking to keyboard rebinding."
 authors = ["Paweł Zmarzły <pawo2500@gmail.com>"]
 repository = "https://github.com/pzmarzly/x11-input-supercharger"
