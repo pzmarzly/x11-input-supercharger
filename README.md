@@ -1,7 +1,5 @@
 # X11 input supercharger
 
-## Work in progress - I'm working on removing lags in Chromium-based browsers and on terminal emulator compatibility
-
 Adds system-wide:
 
 - scrolling mode - click (middle) button and drag cursor to scroll, click again to leave the mode (can be customized to use different button or to require holding the button)
@@ -11,21 +9,21 @@ Can be used by mouse or graphics tablet users.
 
 Scrolling mode requires selected button to be unbound ([example](assets/gnome-tablet-unbound.png)).
 
+Since 0.3.0, keyboard shortcuts are not captured correctly. So if you want to e.g. bind LMB to Z, and open link in a new tab by pressing Ctrl+Z (Ctrl+LMB), unbind Ctrl+Z in your browser settings beforehand.
+
 ## Example config - Wacom Bamboo tablet
 
 ```toml
-# Use `xinput list` to get device list. Wacom Bamboo registers 4
-# devices. The relevant one is called "Wacom Bamboo Pen stylus". But
-# there is nothing wrong with grabbing all 4 of them, which is why I use
-# "Wacom" filter to catch them all. `_grep` part comes from the fact
-# that the program is just running `xinput list | grep ${xinput_grep}`.
-xinput_grep = "Wacom"
-
 # Windows-like auto-scrolling. Press `button_id` to start scrolling,
 # then move your mouse up or down. The longer the distance between the
 # cursor and the starting point, the faster you scroll. Remove/comment
 # out whole section if you don't want it.
 [scroll]
+# Device with buttons. Use `xinput list` and `xinput test-xi2 --root` to
+# determine.
+device = "Wacom Bamboo Pen stylus"
+# Change it if you have many devices with the same name.
+subdevice = 0
 # `hold = false` means click once to enable, click once to disable.
 # Recommended `false` on tablets, as it's annoying when you connectivity
 # while using `hold = true`.
@@ -43,19 +41,25 @@ button_id = 3
 # the last time any of grabbed devices was used. Remove/comment out
 # whole section if you don't want it.
 [keyboard_click]
-# Delay activation on program startup.
-warmup_ms = 500
+# Device that moves or has buttons, used to determine timeout. Use
+# `xinput list` and `xinput test-xi2 --root` to determine.
+device = "Wacom Bamboo Pen stylus"
+# Change it if you have many devices with the same name.
+subdevice = 0
 # How much time must pass until keys go back to normal.
-timeout_ms = 3000
+timeout_ms = 500
 # Key that emulates left mouse button.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
 key_lmb = 52 # Z
 # Key that emulates right mouse button.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
 key_rmb = 53 # X
-# Some unused key. Recommended any of F13-F24.
+# Key that will be used for temporary purposes.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
-unused_key = "F13"
+key_unused1 = 106 # numpad /
+# Key that will be used for temporary purposes.
+# **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
+key_unused2 = 63 # numpad *
 ```
 
 ## Example config - mouse
@@ -64,7 +68,7 @@ Use config above, but replace `xinput_grep` with f.e. "Gaming Mouse", and `stylu
 
 ## Installation
 
-First, install `xinput`, `xdotool`, `xmodmap`, `grep` and `cut`.
+First, install `xdotool` and `xmodmap`.
 
 Grab binary from [Releases page](https://github.com/pzmarzly/x11-input-supercharger/releases), or build it yourself by copying the source and running `cargo build --release`, or have Cargo download the sources and put binary in `PATH` for you with `cargo install x11-input-supercharger`. Rust stable toolchain is required.
 
@@ -72,15 +76,15 @@ Grab binary from [Releases page](https://github.com/pzmarzly/x11-input-superchar
 
 ## Miscellaneous
 
-Entering/leaving scrolling mode changes keymap, which causes lag in Chromium-based browsers. Don't set the timeout too short.
-
-Some terminal emulators capture F13-F24 keys. Use VSCode built-in terminal or Yakuake.
+Konsole (terminal emulator) doesn't like having a key pressed when selecting. Use Gnome Terminal.
 
 The program grabs root X11 input device.
 
 The code is ugly, and the program sometimes crashes on shutdown (but doesn't seem to leave the system in broken state).
 
-KSysGuard shows the program uses 0-2% of CPU time on Intel i5 6300HQ.
+KSysGuard shows the program uses 0-1% of CPU time on Intel i5 6300HQ.
+
+If the program is unstable on your system, check out versions 0.2.x. They used text parser instead of X11 API. However, different keyboard grabbing solution was used back then, which caused lags in Chromium-based programs. See older tree for old README.
 
 ## Acknowledgements
 

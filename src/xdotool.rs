@@ -12,14 +12,6 @@ pub fn get_current_y() -> u16 {
     y[2..].parse::<u16>().unwrap()
 }
 
-pub fn lmb(down: bool) {
-    mouse(down, "1");
-}
-
-pub fn rmb(down: bool) {
-    mouse(down, "3");
-}
-
 pub fn scroll_up() {
     scroll("4");
 }
@@ -38,11 +30,21 @@ fn scroll(direction: &str) {
         .unwrap();
 }
 
-fn mouse(down: bool, button: &str) {
+pub fn click(down: bool, rmb: bool) {
     let kind = if down { "mousedown" } else { "mouseup" };
+    let button = if rmb { "3" } else { "1" };
     Command::new("xdotool")
         .arg(kind)
         .arg(button)
+        .status()
+        .unwrap();
+}
+
+pub fn key(down: bool, num: u8) {
+    let kind = if down { "keydown" } else { "keyup" };
+    Command::new("xdotool")
+        .arg(kind)
+        .arg(num.to_string())
         .status()
         .unwrap();
 }

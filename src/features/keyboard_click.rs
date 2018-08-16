@@ -1,219 +1,151 @@
 use ctrlc;
 
-use std::io::{Read, Write};
-use std::process::{Command, Stdio};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::{sleep, spawn};
 use std::time::{Duration, Instant};
 
+use x::{Event, X};
 use xdotool;
+use xmodmap;
 use MOMENT;
 
 #[derive(Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct KeyboardClickConfig {
-    pub warmup_ms: u64,
+    pub device: String,
+    pub subdevice: u32,
     pub timeout_ms: u64,
     pub key_lmb: u8,
     pub key_rmb: u8,
-    pub unused_key: String,
+    pub key_unused1: u8,
+    pub key_unused2: u8,
 }
 
-#[derive(PartialEq, Debug)]
-enum ParserModes {
-    Main,
-    KeyPress,
-    KeyRelease,
-    RawMotion,
-}
-
-#[derive(Debug)]
-pub struct KeyboardClick {
-    notify_tx: Sender<()>,
-    remap_rx: Receiver<bool>,
-    remapped: bool,
-    mode: ParserModes,
-    key_lmb: String,
-    key_rmb: String,
-    old_keys: Vec<u8>,
+#[derive(Debug, Clone)]
+pub struct Keys {
+    key_lmb: Vec<u64>,
+    key_rmb: Vec<u64>,
+    key_unused1: Vec<u64>,
+    key_unused2: Vec<u64>,
 }
 
 #[derive(Debug)]
-struct KeyboardClickCore {
-    last_event_time: Instant,
+pub struct KeyboardClick<'a> {
+    event_tx: Sender<()>,
+    timeout_rx: Receiver<()>,
+    source_id: u32,
+    config: &'a KeyboardClickConfig,
+    original_keys: Keys,
     remapped: bool,
-    warmup: bool,
-    warmup_time: Duration,
-    timeout_time: Duration,
-    old_keys: Vec<u8>,
-    new_keys: Vec<u8>,
-    remap_tx: Sender<bool>,
 }
 
-use self::ParserModes::*;
+impl<'a> KeyboardClick<'a> {
+    pub fn new(config: &'a KeyboardClickConfig, x: &mut X) -> Self {
+        use x11::xinput2::*;
+        let source_id = x
+            .get_device_id(&config.device, config.subdevice)
+            .expect("Incorrect device configuration for keyboard clicking feature");
+        x.grab(&[XI_RawMotion, XI_RawKeyPress, XI_RawKeyRelease]);
 
-impl KeyboardClick {
-    pub fn new(config: &KeyboardClickConfig) -> Self {
-        let old_keys = old_keys(config.key_lmb, config.key_rmb);
-        let (notify_tx, notify_rx) = channel();
-        let (remap_tx, remap_rx) = channel();
+        let original_keys = Keys {
+            key_lmb: x.get_keys(config.key_lmb),
+            key_rmb: x.get_keys(config.key_rmb),
+            key_unused1: x.get_keys(config.key_unused1),
+            key_unused2: x.get_keys(config.key_unused2),
+        };
+
         {
-            let config = config.clone();
-            let old_keys = old_keys.clone();
-            spawn(move || {
-                KeyboardClickCore::new(config, old_keys, remap_tx).run(&notify_rx);
-            });
+            let mut transaction = xmodmap::transaction();
+            transaction.bind(config.key_lmb, &[]);
+            transaction.bind(config.key_rmb, &[]);
+            transaction.bind(config.key_unused1, &original_keys.key_lmb);
+            transaction.bind(config.key_unused2, &original_keys.key_rmb);
+            transaction.commit();
         }
+
+        let (event_tx, event_rx) = channel();
+        let (timeout_tx, timeout_rx) = channel();
+        let timeout_time = Duration::from_millis(config.timeout_ms);
+        spawn(move || {
+            timer_thread(&event_rx, &timeout_tx, timeout_time);
+        });
+
         Self {
-            notify_tx,
-            remap_rx,
+            config,
+            event_tx,
+            timeout_rx,
+            source_id,
+            original_keys,
             remapped: false,
-            mode: Main,
-            key_lmb: config.key_lmb.to_string(),
-            key_rmb: config.key_rmb.to_string(),
-            old_keys,
         }
     }
-    pub fn notify(&mut self) {
-        self.notify_tx.send(()).unwrap();
-    }
-    pub fn parse_line(&mut self, line: &str, devices: &Vec<String>) {
-        while let Ok(remapped) = self.remap_rx.try_recv() {
-            self.remapped = remapped;
+    pub fn handle(&mut self, ev: &Event) {
+        use x11::xinput2::*;
+        if self.timeout_rx.try_recv().is_ok() {
+            self.remapped = false;
         }
-        match self.mode {
-            Main => {
-                if line.starts_with("EVENT type") {
-                    if self.remapped && line[11..].starts_with("2") {
-                        self.mode = KeyPress;
-                    } else if line[11..].starts_with("3") {
-                        self.mode = KeyRelease;
-                    } else if line[11..].starts_with("17") {
-                        self.mode = RawMotion;
-                    }
-                }
-            }
-            KeyPress | KeyRelease => {
-                if line.starts_with("    detail:") {
-                    if line[12..] == self.key_lmb {
-                        xdotool::lmb(self.mode == KeyPress);
-                    } else if line[12..] == self.key_rmb {
-                        xdotool::rmb(self.mode == KeyPress);
-                    }
-                    self.mode = Main;
-                }
-            }
-            RawMotion => {
-                if line.starts_with("    device:") {
-                    let device = line[12..].split('(').skip(1).take(1).next().unwrap();
-                    let device = &device[..device.len() - 1];
-                    if !devices.iter().any(|ref s| &s[..] == device) {
-                        self.mode = Main;
-                    }
-                } else if line.starts_with("    detail:") {
-                    self.notify();
+        if ev.source_id == self.source_id && ev.kind == XI_RawMotion {
+            self.remapped = true;
+            self.event_tx.send(()).unwrap();
+        } else if ev.kind == XI_RawKeyPress || ev.kind == XI_RawKeyRelease {
+            if ev.detail == self.config.key_lmb || ev.detail == self.config.key_rmb {
+                if self.remapped {
+                    xdotool::click(ev.kind == XI_RawKeyPress, ev.detail == self.config.key_rmb);
+                } else {
+                    let is_rmb = ev.detail == self.config.key_rmb;
+                    let key_to_hit = if is_rmb {
+                        self.config.key_unused2
+                    } else {
+                        self.config.key_unused1
+                    };
+                    xdotool::key(ev.kind == XI_RawKeyPress, key_to_hit);
                 }
             }
         }
     }
-    pub fn reset_keys_on_ctrlc(&self) -> Receiver<()> {
-        let old_keys = self.old_keys.clone();
-        let (tx, rx) = channel();
+    pub fn register_ctrlc_handler(&self) {
+        let keys = self.original_keys.clone();
+        let (key_lmb, key_rmb, key_unused1, key_unused2) = (
+            self.config.key_lmb,
+            self.config.key_rmb,
+            self.config.key_unused1,
+            self.config.key_unused2,
+        );
         ctrlc::set_handler(move || {
-            map(&old_keys);
-            tx.send(()).unwrap();
+            let mut transaction = xmodmap::transaction();
+            transaction.bind(key_lmb, &keys.key_lmb);
+            transaction.bind(key_rmb, &keys.key_rmb);
+            transaction.bind(key_unused1, &keys.key_unused1);
+            transaction.bind(key_unused2, &keys.key_unused2);
+            transaction.commit();
+            panic!("exiting...");
         }).unwrap();
-        rx
     }
 }
 
-impl KeyboardClickCore {
-    fn new(config: KeyboardClickConfig, old_keys: Vec<u8>, remap_tx: Sender<bool>) -> Self {
-        Self {
-            last_event_time: Instant::now(),
-            remapped: false,
-            warmup: true,
-            warmup_time: Duration::from_millis(config.warmup_ms),
-            timeout_time: Duration::from_millis(config.timeout_ms),
-            old_keys,
-            new_keys: format!(
-                "keycode {} = {}\nkeycode {} = {}",
-                config.key_lmb, config.unused_key, config.key_rmb, config.unused_key
-            ).into_bytes(),
-            remap_tx,
-        }
-    }
-    fn run(&mut self, rx: &Receiver<()>) {
-        loop {
-            sleep(MOMENT);
-            let current_time = Instant::now();
-            let delta_time = current_time.duration_since(self.last_event_time);
-            if self.warmup {
-                if delta_time > self.warmup_time {
-                    if delta_time > self.timeout_time {
-                        self.warmup = false;
-                    }
-                }
-                continue;
-            }
-            if rx.try_recv().is_ok() {
-                self.last_event_time = current_time;
-            }
-            if self.remapped {
-                if delta_time > self.timeout_time {
-                    map(&self.old_keys);
-                    self.remap(false);
-                }
-            } else {
-                if delta_time < self.timeout_time {
-                    map(&self.new_keys);
-                    self.remap(true);
-                }
-            }
-        }
-    }
-    fn remap(&mut self, remapped: bool) {
-        self.remapped = remapped;
-        self.remap_tx.send(remapped).unwrap();
-    }
-}
-
-fn map(keys: &[u8]) {
-    let mut child = Command::new("xmodmap")
-        .arg("-")
-        .stdin(Stdio::piped())
-        .spawn()
-        .unwrap();
-    {
-        let stdin = child.stdin.as_mut().unwrap();
-        stdin.write_all(keys).unwrap();
-    }
-    child.wait().unwrap();
-}
-
-fn old_keys(key1: u8, key2: u8) -> Vec<u8> {
-    let original_keys = Command::new("xmodmap")
-        .arg("-pke")
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap()
-        .stdout
-        .unwrap();
-    let mut original_keys = Command::new("grep")
-        .arg("-E")
-        .arg(format!("keycode +{} =|keycode +{} =", key1, key2))
-        .stdin(original_keys)
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap();
-    while original_keys.try_wait().unwrap().is_none() {
+fn timer_thread(event_rx: &Receiver<()>, timeout_tx: &Sender<()>, timeout_time: Duration) {
+    let mut last_event_time = Instant::now();
+    let mut warmup = true;
+    let mut remapped = false;
+    loop {
         sleep(MOMENT);
+        let current_time = Instant::now();
+        let delta_time = current_time.duration_since(last_event_time);
+        if warmup {
+            if delta_time > timeout_time {
+                warmup = false;
+            }
+            continue;
+        }
+        if event_rx.try_recv().is_ok() {
+            remapped = true;
+            last_event_time = current_time;
+        }
+        if remapped {
+            if delta_time > timeout_time {
+                remapped = false;
+                timeout_tx.send(()).unwrap();
+            }
+        }
     }
-    let mut stdout = Vec::with_capacity(128);
-    original_keys
-        .stdout
-        .unwrap()
-        .read_to_end(&mut stdout)
-        .unwrap();
-    stdout
 }

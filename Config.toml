@@ -1,15 +1,13 @@
-# Use `xinput list` to get device list. Wacom Bamboo registers 4
-# devices. The relevant one is called "Wacom Bamboo Pen stylus". But
-# there is nothing wrong with grabbing all 4 of them, which is why I use
-# "Wacom" filter to catch them all. `_grep` part comes from the fact
-# that the program is just running `xinput list | grep ${xinput_grep}`.
-xinput_grep = "Wacom"
-
 # Windows-like auto-scrolling. Press `button_id` to start scrolling,
 # then move your mouse up or down. The longer the distance between the
 # cursor and the starting point, the faster you scroll. Remove/comment
 # out whole section if you don't want it.
 [scroll]
+# Device with buttons. Use `xinput list` and `xinput test-xi2 --root` to
+# determine.
+device = "Wacom Bamboo Pen stylus"
+# Change it if you have many devices with the same name.
+subdevice = 0
 # `hold = false` means click once to enable, click once to disable.
 # Recommended `false` on tablets, as it's annoying when you connectivity
 # while using `hold = true`.
@@ -27,16 +25,22 @@ button_id = 3
 # the last time any of grabbed devices was used. Remove/comment out
 # whole section if you don't want it.
 [keyboard_click]
-# Delay activation on program startup.
-warmup_ms = 500
+# Device that moves or has buttons, used to determine timeout. Use
+# `xinput list` and `xinput test-xi2 --root` to determine.
+device = "Wacom Bamboo Pen stylus"
+# Change it if you have many devices with the same name.
+subdevice = 0
 # How much time must pass until keys go back to normal.
-timeout_ms = 3000
+timeout_ms = 500
 # Key that emulates left mouse button.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
 key_lmb = 52 # Z
 # Key that emulates right mouse button.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
 key_rmb = 53 # X
-# Some unused key. Recommended any of F13-F24.
+# Key that will be used for temporary purposes.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
-unused_key = "F13"
+key_unused1 = 106 # numpad /
+# Key that will be used for temporary purposes.
+# **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
+key_unused2 = 63 # numpad *
