@@ -72,6 +72,8 @@ Grab binary from [Releases page](https://github.com/pzmarzly/x11-input-superchar
 
 Entering/leaving scrolling mode changes keymap, which causes lag in Chromium-based browsers. Don't set the timeout too short.
 
+Some terminal emulators capture F13-F24 keys. Use VSCode built-in terminal or Yakuake.
+
 The program grabs root X11 input device.
 
 The code is ugly, and the program sometimes crashes on shutdown (but doesn't seem to leave the system in broken state).
