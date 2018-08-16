@@ -1,5 +1,7 @@
 # X11 input supercharger
 
+## Work in progress - I'm working on removing lags in Chromium-based browsers and on terminal emulator compatibility
+
 Adds system-wide:
 
 - scrolling mode - click (middle) button and drag cursor to scroll, click again to leave the mode (can be customized to use different button or to require holding the button)
