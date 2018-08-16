@@ -32,7 +32,7 @@ hold = false
 # Recommended to set `speed` to high value and decrease system-wide
 # scrolling speed as much as possible. Equation: `speed`×`distance`[px]
 # ÷1_000_000_000 = emulated mouse wheel rolls.
-speed = 1000000
+speed = 600000
 # Which button toggles scrolling. Button 2 is the middle mouse button.
 # Button 3 is upper button on Wacom Bamboo Pen.
 button_id = 3
@@ -43,7 +43,7 @@ button_id = 3
 # Delay activation on program startup.
 warmup_ms = 500
 # How much time must pass until keys go back to normal.
-timeout_ms = 1000
+timeout_ms = 3000
 # Key that emulates left mouse button.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
 key_lmb = 52 # Z
