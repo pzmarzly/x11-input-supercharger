@@ -77,3 +77,11 @@ The program grabs root X11 input device.
 The code is ugly, and the program sometimes crashes on shutdown (but doesn't seem to leave the system in broken state).
 
 KSysGuard shows the program uses 0-2% of CPU time on Intel i5 6300HQ.
+
+## Acknowledgements
+
+Thanks to [Bruce Byfield](https://brucebyfield.com/) for his Wacom-related articles for Linux Magazine.
+
+Thanks to [Linux Wacom Project developers](https://linuxwacom.github.io/about/) for making it possible to use Wacom as input device on Linux.
+
+Thanks to all X11 developers for awesome tools they created.
