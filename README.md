@@ -38,7 +38,8 @@ speed = 600000
 button_id = 3
 
 # Click using keyboard. Active only until `timeout_ms` has passed since
-# the last time any of grabbed devices was used.
+# the last time any of grabbed devices was used. Remove/comment out
+# whole section if you don't want it.
 [keyboard_click]
 # Delay activation on program startup.
 warmup_ms = 500
