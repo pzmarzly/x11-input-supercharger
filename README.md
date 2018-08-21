@@ -86,6 +86,22 @@ KSysGuard shows the program uses 0-1% of CPU time on Intel i5 6300HQ.
 
 If the program is unstable on your system, check out versions 0.2.x. They used text parser instead of X11 API. However, different keyboard grabbing solution was used back then, which caused lags in Chromium-based programs. See older tree for old README.
 
+## Tip: autostart
+
+Add following command to autostart commands:
+
+```bash
+bash -c 'cd /path/to/folder/with/config/ && /path/to/x11-input-supercharger & disown'
+```
+
+## Tip: cursor speed
+
+```bash
+xinput set-prop "Wacom Bamboo Pen stylus" "Device Accel Constant Deceleration" 1.6
+```
+
+You can run add that command to autostart commands.
+
 ## Acknowledgements
 
 Thanks to [Bruce Byfield](https://brucebyfield.com/) for his Wacom-related articles for Linux Magazine.
