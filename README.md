@@ -9,7 +9,7 @@ Can be used by mouse or graphics tablet users.
 
 Scrolling mode requires selected button to be unbound ([example](assets/gnome-tablet-unbound.png)).
 
-Since 0.3.0, keyboard shortcuts are not captured correctly. So if you want to e.g. bind LMB to Z, and open link in a new tab by pressing Ctrl+Z (Ctrl+LMB), unbind Ctrl+Z in your browser settings beforehand.
+Since 0.3.0, keyboard shortcuts are not captured correctly. So if you want to e.g. bind LMB to 2, and open link in a new tab by pressing Ctrl+2 (Ctrl+LMB), unbind Ctrl+2 in your browser settings beforehand.
 
 ## Example config - Wacom Bamboo tablet
 
@@ -50,10 +50,10 @@ subdevice = 0
 timeout_ms = 500
 # Key that emulates left mouse button.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
-key_lmb = 52 # Z
+key_lmb = 11 # 2@
 # Key that emulates right mouse button.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
-key_rmb = 53 # X
+key_rmb = 12 # 3#
 # Key that will be used for temporary purposes.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
 key_unused1 = 106 # numpad /
