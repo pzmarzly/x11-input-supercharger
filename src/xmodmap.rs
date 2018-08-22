@@ -25,7 +25,11 @@ impl<'a> Transaction<'a> {
         for item in self.items {
             let mut keysyms_tmp = String::with_capacity(64);
             for keysym in item.keysyms {
-                keysyms_tmp += &keysym.to_string();
+                if keysym != &0 {
+                    keysyms_tmp += &keysym.to_string();
+                } else {
+                    keysyms_tmp += "NoSymbol";
+                }
                 keysyms_tmp += " ";
             }
             tmp += "keycode ";
