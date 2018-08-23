@@ -10,8 +10,8 @@ categories = ["command-line-utilities"]
 license = "MIT"
 
 [dependencies]
-serde = "1.0.72"
-serde_derive = "1.0.72"
+serde = "1.0.73"
+serde_derive = "1.0.73"
 toml = "0.4.6"
 lazy-panic = "0.3.2"
 const-cstr = "0.3.0"
