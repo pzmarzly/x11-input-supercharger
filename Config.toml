@@ -34,10 +34,10 @@ subdevice = 0
 timeout_ms = 500
 # Key that emulates left mouse button.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
-key_lmb = 11 # 2@
+key_lmb = 25 # W
 # Key that emulates right mouse button.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
-key_rmb = 12 # 3#
+key_rmb = 26 # E
 # Key that will be used for temporary purposes.
 # **DO NOT USE TOGGLE BUTTON (CapsLock etc.)**
 key_unused1 = 106 # numpad /
