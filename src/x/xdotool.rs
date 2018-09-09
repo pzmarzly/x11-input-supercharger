@@ -9,7 +9,7 @@ pub fn get_current_y() -> u16 {
     let stdout = r.stdout;
     let stdout = unsafe { from_utf8_unchecked(&stdout) };
     let y = stdout.split(' ').skip(1).take(1).next().unwrap();
-    y[2..].parse::<u16>().unwrap()
+    y[2..].parse().unwrap()
 }
 
 pub fn scroll_up() {
