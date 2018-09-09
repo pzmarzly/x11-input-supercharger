@@ -387,7 +387,7 @@ dependencies = [
 
 [[package]]
 name = "x11-input-supercharger"
-version = "0.3.1"
+version = "0.4.0"
 dependencies = [
  "const-cstr 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ctrlc 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
