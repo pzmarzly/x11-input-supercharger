@@ -16,6 +16,7 @@ pub struct ScrollConfig {
     pub button_id: u8,
     pub indicator: bool,
     pub indicator_size: u16,
+    pub cancel_on_keypress: bool,
 }
 
 type ScrollThread = Sender<()>;
@@ -35,6 +36,9 @@ impl<'a> Scroll<'a> {
             .get_device_id(&config.device, config.subdevice)
             .expect("Incorrect device configuration for scrolling feature");
         x.grab(&[XI_RawButtonPress, XI_RawButtonRelease]);
+        if config.cancel_on_keypress {
+            x.grab(&[XI_RawKeyPress]);
+        }
 
         Self {
             config,
@@ -49,6 +53,10 @@ impl<'a> Scroll<'a> {
             if ev.kind == XI_RawButtonPress {
                 self.toggle();
             } else if self.config.hold && ev.kind == XI_RawButtonRelease {
+                self.toggle();
+            }
+        } else if self.config.cancel_on_keypress && ev.kind == XI_RawKeyPress {
+            if self.active.is_some() {
                 self.toggle();
             }
         }

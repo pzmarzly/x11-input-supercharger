@@ -40,6 +40,8 @@ button_id = 3
 # (when the scrolling started)
 indicator = true
 indicator_size = 5
+# Whether to stop scrolling when keyboard event occurs
+cancel_on_keypress = true
 
 # Click using keyboard. Active only until `timeout_ms` has passed since
 # the last time any of grabbed devices was used. Remove/comment out
