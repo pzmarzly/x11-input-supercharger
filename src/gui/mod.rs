@@ -1,6 +1,3 @@
-use cairo;
-use gdk::ScreenExt;
-use gtk;
 use gtk::prelude::*;
 use gtk::{init, main_iteration_do, Builder, Image, Window, WindowPosition};
 

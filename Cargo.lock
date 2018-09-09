@@ -389,10 +389,8 @@ dependencies = [
 name = "x11-input-supercharger"
 version = "0.3.1"
 dependencies = [
- "cairo-rs 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "const-cstr 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ctrlc 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "gdk 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "gtk 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy-panic 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.73 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -17,8 +17,6 @@ lazy-panic = "0.3.2"
 const-cstr = "0.3.0"
 ctrlc = "3.1.1"
 static_assets = "0.1.1"
-gdk = "0.8.0"
-cairo-rs = "0.4.0"
 
 [dependencies.x11]
 version = "2.18.1"
