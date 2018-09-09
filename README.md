@@ -68,7 +68,7 @@ Use config above, but replace `xinput_grep` with f.e. "Gaming Mouse", and `stylu
 
 ## Installation
 
-First, install `xdotool` and `xmodmap`.
+First, install GTK+ 3.10+, `xdotool` and `xmodmap`.
 
 Grab binary from [Releases page](https://github.com/pzmarzly/x11-input-supercharger/releases), or build it yourself by copying the source and running `cargo build --release`, or have Cargo download the sources and put binary in `PATH` for you with `cargo install x11-input-supercharger`. Rust stable toolchain is required.
 

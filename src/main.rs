@@ -2,8 +2,13 @@
 extern crate const_cstr;
 #[macro_use]
 extern crate lazy_panic;
+extern crate cairo;
 extern crate ctrlc;
+extern crate gdk;
+extern crate gtk;
 extern crate x11;
+#[macro_use]
+extern crate static_assets;
 
 extern crate serde;
 #[macro_use]
@@ -12,6 +17,7 @@ extern crate toml;
 
 mod config;
 mod features;
+mod gui;
 mod x;
 
 use lazy_panic::formatter;

@@ -1,6 +1,7 @@
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::{sleep, spawn};
 
+use gui;
 use x::xdotool;
 use x::xlib::{Event, XLib};
 use MOMENT;
@@ -22,6 +23,7 @@ pub struct Scroll<'a> {
     config: &'a ScrollConfig,
     source_id: u32,
     active: Option<ScrollThread>,
+    gui_thread: Sender<gui::EventKind>,
 }
 
 impl<'a> Scroll<'a> {
@@ -36,6 +38,7 @@ impl<'a> Scroll<'a> {
             config,
             source_id,
             active: None,
+            gui_thread: gui::gui_thread(),
         }
     }
     pub fn handle(&mut self, ev: &Event) {
@@ -50,8 +53,10 @@ impl<'a> Scroll<'a> {
     }
     pub fn toggle(&mut self) {
         if let Some(active) = self.active.take() {
+            self.gui_thread.send(gui::EventKind::HideCrosshair).unwrap();
             active.send(()).is_ok();
         } else {
+            self.gui_thread.send(gui::EventKind::ShowCrosshair).unwrap();
             let (tx, rx) = channel();
             let speed = self.config.speed;
             spawn(move || scrolling_thread(speed, rx));
