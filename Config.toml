@@ -20,6 +20,10 @@ speed = 600000
 # Which button toggles scrolling. Button 2 is the middle mouse button.
 # Button 3 is upper button on Wacom Bamboo Pen.
 button_id = 3
+# Whether to show crosshair/indicator at cursor original position
+# (when the scrolling started)
+indicator = true
+indicator_size = 5
 
 # Click using keyboard. Active only until `timeout_ms` has passed since
 # the last time any of grabbed devices was used. Remove/comment out

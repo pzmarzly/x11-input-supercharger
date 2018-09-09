@@ -14,6 +14,8 @@ pub struct ScrollConfig {
     pub hold: bool,
     pub speed: u32,
     pub button_id: u8,
+    pub indicator: bool,
+    pub indicator_size: u16,
 }
 
 type ScrollThread = Sender<()>;
@@ -38,7 +40,7 @@ impl<'a> Scroll<'a> {
             config,
             source_id,
             active: None,
-            gui_thread: gui::gui_thread(),
+            gui_thread: gui::gui_thread(config.indicator_size),
         }
     }
     pub fn handle(&mut self, ev: &Event) {

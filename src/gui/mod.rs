@@ -2,7 +2,7 @@ use cairo;
 use gdk::ScreenExt;
 use gtk;
 use gtk::prelude::*;
-use gtk::{init, main_iteration_do, Builder, Window};
+use gtk::{init, main_iteration_do, Builder, Image, Window, WindowPosition};
 
 use std::sync::mpsc::{channel, Sender};
 use std::thread::{sleep, spawn};
@@ -14,7 +14,7 @@ pub enum EventKind {
     HideCrosshair,
 }
 
-pub fn gui_thread() -> Sender<EventKind> {
+pub fn gui_thread(crosshair_size: u16) -> Sender<EventKind> {
     let (ev_tx, ev_rx) = channel();
     spawn(move || {
         if init().is_err() {
@@ -26,13 +26,19 @@ pub fn gui_thread() -> Sender<EventKind> {
         let builder = Builder::new_from_string(glade_src);
 
         let crosshair: Window = builder.get_object("crosshair").unwrap();
+        let icon: Image = builder.get_object("crosshair_icon").unwrap();
+        let margin = i32::from(crosshair_size);
+        icon.set_margin_top(margin);
+        icon.set_margin_bottom(margin);
+        icon.set_margin_left(margin);
+        icon.set_margin_right(margin);
 
         loop {
             while let Ok(ev) = ev_rx.try_recv() {
                 use self::EventKind::*;
                 match ev {
                     ShowCrosshair => {
-                        crosshair.set_position(gtk::WindowPosition::Mouse);
+                        crosshair.set_position(WindowPosition::Mouse);
                         crosshair.show_all();
                     }
                     HideCrosshair => crosshair.hide(),
