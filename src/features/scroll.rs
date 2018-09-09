@@ -1,8 +1,8 @@
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::{sleep, spawn};
 
-use x::{Event, X};
-use xdotool;
+use x::xdotool;
+use x::xlib::{Event, XLib};
 use MOMENT;
 
 #[derive(Deserialize, Clone, Debug)]
@@ -25,7 +25,7 @@ pub struct Scroll<'a> {
 }
 
 impl<'a> Scroll<'a> {
-    pub fn new(config: &'a ScrollConfig, x: &mut X) -> Self {
+    pub fn new(config: &'a ScrollConfig, x: &mut XLib) -> Self {
         use x11::xinput2::*;
         let source_id = x
             .get_device_id(&config.device, config.subdevice)

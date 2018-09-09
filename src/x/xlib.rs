@@ -6,11 +6,11 @@ use std::collections::HashSet;
 use std::ffi::CStr;
 use std::mem::uninitialized;
 
-pub struct X {
-    s: XLocked,
+pub struct XLib {
+    s: XLibLocked,
 }
 
-pub struct XLocked {
+pub struct XLibLocked {
     display: *mut Display,
     devices: Vec<Device>,
     ev: XEvent,
@@ -28,7 +28,7 @@ const_cstr! {
     X_INPUT_EXTENSION_STR = "XInputExtension";
 }
 
-impl X {
+impl XLib {
     pub fn new() -> Self {
         unsafe {
             let display = XOpenDisplay(0 as *const _);
@@ -61,7 +61,7 @@ impl X {
                 .collect();
 
             Self {
-                s: XLocked {
+                s: XLibLocked {
                     display,
                     devices,
                     ev: uninitialized(),
@@ -94,7 +94,7 @@ impl X {
             Vec::from_raw_parts(keysyms, len as usize, len as usize)
         }
     }
-    pub fn finish(mut self) -> XLocked {
+    pub fn finish(mut self) -> XLibLocked {
         unsafe {
             let mut mask = vec![0u8; 4];
             self.s
@@ -120,7 +120,7 @@ pub struct Event {
     pub detail: u8,
 }
 
-impl XLocked {
+impl XLibLocked {
     pub fn poll(&mut self) -> Option<Event> {
         unsafe {
             let mut result = None;

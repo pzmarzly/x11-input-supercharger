@@ -4,9 +4,9 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::{sleep, spawn};
 use std::time::{Duration, Instant};
 
-use x::{Event, X};
-use xdotool;
-use xmodmap;
+use x::xdotool;
+use x::xlib::{Event, XLib};
+use x::xmodmap;
 use MOMENT;
 
 #[derive(Deserialize, Clone, Debug)]
@@ -40,7 +40,7 @@ pub struct KeyboardClick<'a> {
 }
 
 impl<'a> KeyboardClick<'a> {
-    pub fn new(config: &'a KeyboardClickConfig, x: &mut X) -> Self {
+    pub fn new(config: &'a KeyboardClickConfig, x: &mut XLib) -> Self {
         use x11::xinput2::*;
         let source_id = x
             .get_device_id(&config.device, config.subdevice)
