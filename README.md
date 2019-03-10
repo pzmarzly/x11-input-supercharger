@@ -2,7 +2,7 @@
 
 Adds system-wide:
 
-- scrolling mode - click (middle) button and drag cursor to scroll, click again to leave the mode (can be customized to use different button or to require holding the button)
+- auto-scrolling mode - click (middle) button and drag cursor to scroll, click again to leave the mode (can be customized to use different button or to require holding the button)
 - clicking using keyboard keys, active only for x ms after selected input device was last used
 
 Can be used by mouse or graphics tablet users.
