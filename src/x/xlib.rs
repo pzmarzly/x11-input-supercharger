@@ -132,10 +132,6 @@ impl XLibLocked {
                 {
                     #[allow(non_upper_case_globals)]
                     match self.ev.generic_event_cookie.evtype {
-                        XI_DeviceChanged | XI_HierarchyChanged | XI_Enter | XI_Leave
-                        | XI_FocusIn | XI_FocusOut | XI_PropertyEvent => {
-                            println!("Warning: Unsupported event received!")
-                        }
                         XI_RawKeyPress | XI_RawKeyRelease | XI_RawButtonPress
                         | XI_RawButtonRelease | XI_RawMotion | XI_RawTouchBegin
                         | XI_RawTouchUpdate | XI_RawTouchEnd => {
@@ -146,14 +142,7 @@ impl XLibLocked {
                                 detail: (*data).detail as u8,
                             });
                         }
-                        _ => {
-                            let data = self.ev.generic_event_cookie.data as *mut XIDeviceEvent;
-                            result = Some(Event {
-                                kind: self.ev.generic_event_cookie.evtype,
-                                source_id: (*data).sourceid as u32,
-                                detail: (*data).detail as u8,
-                            });
-                        }
+                        _ => println!("Warning: Unsupported event received!"),
                     }
                 }
                 XFreeEventData(self.display, &mut self.ev.generic_event_cookie);
