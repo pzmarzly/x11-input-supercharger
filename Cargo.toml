@@ -18,6 +18,7 @@ lazy-panic = "1.0.0"
 const-cstr = "0.3.0"
 ctrlc = "3.1.1"
 static_assets = "0.1.1"
+movie = {path="/home/pzmarzly/Desktop/movie/movie"}
 
 [dependencies.x11]
 version = "2.18.1"

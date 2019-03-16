@@ -256,6 +256,25 @@ version = "0.2.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "movie"
+version = "0.1.0"
+dependencies = [
+ "movie_derive 0.1.0",
+ "movie_utils 0.1.0",
+]
+
+[[package]]
+name = "movie_derive"
+version = "0.1.0"
+dependencies = [
+ "movie_utils 0.1.0",
+]
+
+[[package]]
+name = "movie_utils"
+version = "0.1.0"
+
+[[package]]
 name = "nix"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -397,6 +416,7 @@ dependencies = [
  "ctrlc 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "gtk 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy-panic 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "movie 0.1.0",
  "serde 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
  "static_assets 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
