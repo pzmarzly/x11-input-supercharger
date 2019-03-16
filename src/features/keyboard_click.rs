@@ -1,13 +1,12 @@
+use movie::actor;
 use serde_derive::Deserialize;
 
 use std::sync::mpsc::{channel, Receiver, Sender};
-use std::thread::{sleep, spawn};
 use std::time::{Duration, Instant};
 
 use crate::x::xdotool;
 use crate::x::xlib::{Event, XLib};
 use crate::x::xmodmap;
-use crate::MOMENT;
 
 #[derive(Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
@@ -29,9 +28,8 @@ pub struct Keys {
     key_unused2: Vec<u64>,
 }
 
-#[derive(Debug)]
 pub struct KeyboardClick<'a> {
-    event_tx: Sender<()>,
+    timer_thread: TimerThread::Handle,
     timeout_rx: Receiver<()>,
     source_id: u32,
     config: &'a KeyboardClickConfig,
@@ -63,16 +61,17 @@ impl<'a> KeyboardClick<'a> {
             transaction.commit();
         }
 
-        let (event_tx, event_rx) = channel();
         let (timeout_tx, timeout_rx) = channel();
         let timeout_time = Duration::from_millis(config.timeout_ms);
-        spawn(move || {
-            timer_thread(&event_rx, &timeout_tx, timeout_time);
-        });
+        let timer_thread = TimerThread::Actor {
+            timeout_tx,
+            timeout_time,
+        }
+        .start();
 
         let ret = Self {
             config,
-            event_tx,
+            timer_thread,
             timeout_rx,
             source_id,
             original_keys,
@@ -89,7 +88,7 @@ impl<'a> KeyboardClick<'a> {
         }
         if ev.source_id == self.source_id && ev.kind == XI_RawMotion {
             self.remapped = true;
-            self.event_tx.send(()).unwrap();
+            self.timer_thread.send(TimerThread::Input::Event);
         } else if ev.kind == XI_RawKeyPress || ev.kind == XI_RawKeyRelease {
             if ev.detail == self.config.key_lmb || ev.detail == self.config.key_rmb {
                 if self.remapped {
@@ -127,27 +126,34 @@ impl<'a> KeyboardClick<'a> {
     }
 }
 
-fn timer_thread(event_rx: &Receiver<()>, timeout_tx: &Sender<()>, timeout_time: Duration) {
-    let mut last_event_time = Instant::now();
-    let mut warmup = true;
-    let mut remapped = false;
-    loop {
-        sleep(MOMENT);
-        let current_time = Instant::now();
-        let delta_time = current_time.duration_since(last_event_time);
-        if warmup {
-            if delta_time > timeout_time {
-                warmup = false;
-            }
-            continue;
-        }
-        if event_rx.try_recv().is_ok() {
+actor! {
+    TimerThread
+    input:
+        Event,
+    data:
+        pub timeout_tx: super::Sender<()>,
+        pub timeout_time: super::Duration,
+    on_init:
+        let mut last_event_time = super::Instant::now();
+        let mut warmup = true;
+        let mut remapped = false;
+        let mut current_time = super::Instant::now();
+    on_message:
+        Event => {
             remapped = true;
             last_event_time = current_time;
         }
-        if remapped && delta_time > timeout_time {
-            remapped = false;
-            timeout_tx.send(()).unwrap();
+    on_tick:
+        current_time = super::Instant::now();
+        let delta_time = current_time.duration_since(last_event_time);
+        if warmup {
+            if delta_time > self.timeout_time {
+                warmup = false;
+            }
+        } else {
+            if remapped && delta_time > self.timeout_time {
+                remapped = false;
+                self.timeout_tx.send(()).unwrap();
+            }
         }
-    }
 }
