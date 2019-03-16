@@ -6,6 +6,7 @@ use x11::xlib::*;
 use std::collections::HashSet;
 use std::ffi::CStr;
 use std::mem::uninitialized;
+use std::ptr::null;
 
 pub struct XLib {
     s: XLibLocked,
@@ -32,8 +33,8 @@ const_cstr! {
 impl XLib {
     pub fn new() -> Self {
         unsafe {
-            let display = XOpenDisplay(0 as *const _);
-            if display == (0 as *mut _) {
+            let display = XOpenDisplay(null());
+            if display.is_null() {
                 panic!("Cannot connect to Xserver");
             }
 
@@ -84,8 +85,7 @@ impl XLib {
     pub fn get_device_id(&self, device_name: &str, subdevice: u32) -> Option<u32> {
         self.list_devices()
             .filter(|x| x.name == device_name)
-            .skip(subdevice as usize)
-            .next()
+            .nth(subdevice as usize)
             .map(|x| x.id)
     }
     pub fn get_keys(&mut self, key: u8) -> Vec<u64> {

@@ -28,6 +28,7 @@ pub fn need_dep(name: &str) {
         .unwrap_or_else(|_| panic!("Missing global binary: {}", name));
 }
 
+#[allow(clippy::option_map_unit_fn)]
 fn main() {
     set_panic_message!(formatter::Simple);
 

@@ -49,6 +49,8 @@ impl<'a> Scroll<'a> {
             gui_thread: gui::gui_thread(config.indicator_size),
         }
     }
+    #[allow(clippy::if_same_then_else)]
+    #[allow(clippy::collapsible_if)]
     pub fn handle(&mut self, ev: &Event) {
         use x11::xinput2::*;
         if ev.source_id == self.source_id && ev.detail == self.config.button_id {

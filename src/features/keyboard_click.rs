@@ -79,6 +79,7 @@ impl<'a> KeyboardClick<'a> {
             remapped: false,
         }
     }
+    #[allow(clippy::collapsible_if)]
     pub fn handle(&mut self, ev: &Event) {
         use x11::xinput2::*;
         if self.timeout_rx.try_recv().is_ok() {
@@ -142,11 +143,9 @@ fn timer_thread(event_rx: &Receiver<()>, timeout_tx: &Sender<()>, timeout_time: 
             remapped = true;
             last_event_time = current_time;
         }
-        if remapped {
-            if delta_time > timeout_time {
-                remapped = false;
-                timeout_tx.send(()).unwrap();
-            }
+        if remapped && delta_time > timeout_time {
+            remapped = false;
+            timeout_tx.send(()).unwrap();
         }
     }
 }
