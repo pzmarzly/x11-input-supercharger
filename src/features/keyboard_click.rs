@@ -143,6 +143,7 @@ actor! {
             remapped = true;
             last_event_time = current_time;
         }
+    tick_interval: 50,
     on_tick:
         current_time = super::Instant::now();
         let delta_time = current_time.duration_since(last_event_time);

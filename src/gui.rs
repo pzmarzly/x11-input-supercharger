@@ -31,6 +31,7 @@ actor! {
             crosshair.show_all();
         }
         HideCrosshair => crosshair.hide(),
+    tick_interval: 4,
     on_tick:
         main_iteration_do(false);
 }

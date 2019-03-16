@@ -87,6 +87,7 @@ actor! {
     on_init:
         let original_y = super::xdotool::get_current_y();
         let mut progress_towards_next_event: i64 = 0;
+    tick_interval: 16,
     on_tick:
         let current_y = super::xdotool::get_current_y();
         let diff = i64::from(current_y) - i64::from(original_y);
@@ -98,7 +99,8 @@ actor! {
             progress_towards_next_event = 0;
         }
 
-        progress_towards_next_event += diff * self.speed;
+        // 4 below is compensating for change in interval (from 4 to 16)
+        progress_towards_next_event += 4 * diff * self.speed;
 
         const THRESHOLD: i64 = 1_000_000_000;
         if progress_towards_next_event > THRESHOLD {
