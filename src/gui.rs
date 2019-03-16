@@ -18,7 +18,7 @@ actor! {
             return;
         }
 
-        let glade_src = &asset_str!("src/gui/ui.glade");
+        let glade_src = &asset_str!("src/ui.glade");
         let builder = Builder::new_from_string(glade_src);
 
         let crosshair: Window = builder.get_object("crosshair").unwrap();
