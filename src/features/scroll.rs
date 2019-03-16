@@ -1,12 +1,9 @@
+use movie::actor;
 use serde_derive::Deserialize;
-
-use std::sync::mpsc::{channel, Receiver, Sender};
-use std::thread::{sleep, spawn};
 
 use crate::gui::GuiThread;
 use crate::x::xdotool;
 use crate::x::xlib::{Event, XLib};
-use crate::MOMENT;
 
 #[derive(Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
@@ -21,12 +18,10 @@ pub struct ScrollConfig {
     pub cancel_on_keypress: bool,
 }
 
-type ScrollThread = Sender<()>;
-
 pub struct Scroll<'a> {
     config: &'a ScrollConfig,
     source_id: u32,
-    active: Option<ScrollThread>,
+    scroll_thread: Option<ScrollThread::Handle>,
     gui_thread: GuiThread::Handle,
 }
 
@@ -41,14 +36,16 @@ impl<'a> Scroll<'a> {
             x.grab(&[XI_RawKeyPress]);
         }
 
+        let gui_thread = GuiThread::Actor {
+            crosshair_size: config.indicator_size,
+        }
+        .start();
+
         Self {
             config,
             source_id,
-            active: None,
-            gui_thread: GuiThread::Actor {
-                crosshair_size: config.indicator_size,
-            }
-            .start(),
+            scroll_thread: None,
+            gui_thread,
         }
     }
     #[allow(clippy::if_same_then_else)]
@@ -62,36 +59,36 @@ impl<'a> Scroll<'a> {
                 self.toggle();
             }
         } else if self.config.cancel_on_keypress && ev.kind == XI_RawKeyPress {
-            if self.active.is_some() {
+            if self.scroll_thread.is_some() {
                 self.toggle();
             }
         }
     }
     pub fn toggle(&mut self) {
-        if let Some(active) = self.active.take() {
+        if let Some(scroll_thread) = self.scroll_thread.take() {
             self.gui_thread.send(GuiThread::Input::HideCrosshair);
-            active.send(()).is_ok();
+            scroll_thread.stop();
         } else {
             self.gui_thread.send(GuiThread::Input::ShowCrosshair);
-            let (tx, rx) = channel();
-            let speed = self.config.speed;
-            spawn(move || scrolling_thread(speed, rx));
-            self.active = Some(tx);
+            self.scroll_thread = Some(
+                ScrollThread::Actor {
+                    speed: self.config.speed as i64,
+                }
+                .start(),
+            );
         }
     }
 }
 
-fn scrolling_thread(speed: u32, rx: Receiver<()>) {
-    let speed = i64::from(speed);
-    let original_y = xdotool::get_current_y();
-    let mut progress_towards_next_event: i64 = 0;
-    loop {
-        if rx.try_recv().is_ok() {
-            break;
-        }
-        sleep(MOMENT);
-
-        let current_y = xdotool::get_current_y();
+actor! {
+    ScrollThread
+    data:
+        pub speed: i64,
+    on_init:
+        let original_y = super::xdotool::get_current_y();
+        let mut progress_towards_next_event: i64 = 0;
+    on_tick:
+        let current_y = super::xdotool::get_current_y();
         let diff = i64::from(current_y) - i64::from(original_y);
 
         if diff < 0 && progress_towards_next_event > 0 {
@@ -101,19 +98,18 @@ fn scrolling_thread(speed: u32, rx: Receiver<()>) {
             progress_towards_next_event = 0;
         }
 
-        progress_towards_next_event += diff * speed;
+        progress_towards_next_event += diff * self.speed;
 
         const THRESHOLD: i64 = 1_000_000_000;
         if progress_towards_next_event > THRESHOLD {
             while progress_towards_next_event > THRESHOLD {
-                xdotool::scroll_down();
+                super::xdotool::scroll_down();
                 progress_towards_next_event -= THRESHOLD;
             }
         } else if progress_towards_next_event < -THRESHOLD {
             while progress_towards_next_event < -THRESHOLD {
-                xdotool::scroll_up();
+                super::xdotool::scroll_up();
                 progress_towards_next_event += THRESHOLD;
             }
         }
-    }
 }
