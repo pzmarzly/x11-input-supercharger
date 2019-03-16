@@ -7,7 +7,6 @@ use lazy_panic::{formatter, set_panic_message};
 
 use std::alloc::System;
 use std::process::Command;
-use std::time::Duration;
 
 use crate::config::Config;
 use crate::features::keyboard_click::KeyboardClick;
@@ -18,8 +17,6 @@ use crate::x::xlib::XLib;
 // TODO: check whether necessary anymore - it probably happened due to double freeing memory
 #[global_allocator]
 static ALLOCATOR: System = System;
-
-const MOMENT: Duration = Duration::from_millis(4);
 
 pub fn need_dep(name: &str) {
     Command::new(name)
