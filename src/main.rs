@@ -48,8 +48,6 @@ fn main() {
         .as_ref()
         .map(|c| KeyboardClick::new(c, &mut x));
 
-    keyboard_click.as_ref().map(|c| c.register_ctrlc_handler());
-
     let mut x = x.finish();
     loop {
         if let Some(ev) = x.poll() {

@@ -70,14 +70,16 @@ impl<'a> KeyboardClick<'a> {
             timer_thread(&event_rx, &timeout_tx, timeout_time);
         });
 
-        Self {
+        let ret = Self {
             config,
             event_tx,
             timeout_rx,
             source_id,
             original_keys,
             remapped: false,
-        }
+        };
+        ret.register_ctrlc_handler();
+        ret
     }
     #[allow(clippy::collapsible_if)]
     pub fn handle(&mut self, ev: &Event) {
@@ -104,7 +106,7 @@ impl<'a> KeyboardClick<'a> {
             }
         }
     }
-    pub fn register_ctrlc_handler(&self) {
+    fn register_ctrlc_handler(&self) {
         let keys = self.original_keys.clone();
         let (key_lmb, key_rmb, key_unused1, key_unused2) = (
             self.config.key_lmb,
