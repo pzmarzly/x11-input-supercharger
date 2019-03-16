@@ -18,6 +18,7 @@ pub struct ScrollConfig {
     pub cancel_on_keypress: bool,
 }
 
+// TODO: ScrollThread and GuiThread could be merged
 pub struct Scroll<'a> {
     config: &'a ScrollConfig,
     source_id: u32,
