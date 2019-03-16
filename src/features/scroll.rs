@@ -3,7 +3,7 @@ use serde_derive::Deserialize;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::{sleep, spawn};
 
-use crate::gui;
+use crate::gui::GuiThread;
 use crate::x::xdotool;
 use crate::x::xlib::{Event, XLib};
 use crate::MOMENT;
@@ -23,12 +23,11 @@ pub struct ScrollConfig {
 
 type ScrollThread = Sender<()>;
 
-#[derive(Debug)]
 pub struct Scroll<'a> {
     config: &'a ScrollConfig,
     source_id: u32,
     active: Option<ScrollThread>,
-    gui_thread: Sender<gui::EventKind>,
+    gui_thread: GuiThread::Handle,
 }
 
 impl<'a> Scroll<'a> {
@@ -46,7 +45,10 @@ impl<'a> Scroll<'a> {
             config,
             source_id,
             active: None,
-            gui_thread: gui::gui_thread(config.indicator_size),
+            gui_thread: GuiThread::Actor {
+                crosshair_size: config.indicator_size,
+            }
+            .start(),
         }
     }
     #[allow(clippy::if_same_then_else)]
@@ -67,10 +69,10 @@ impl<'a> Scroll<'a> {
     }
     pub fn toggle(&mut self) {
         if let Some(active) = self.active.take() {
-            self.gui_thread.send(gui::EventKind::HideCrosshair).unwrap();
+            self.gui_thread.send(GuiThread::Input::HideCrosshair);
             active.send(()).is_ok();
         } else {
-            self.gui_thread.send(gui::EventKind::ShowCrosshair).unwrap();
+            self.gui_thread.send(GuiThread::Input::ShowCrosshair);
             let (tx, rx) = channel();
             let speed = self.config.speed;
             spawn(move || scrolling_thread(speed, rx));

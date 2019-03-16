@@ -1,20 +1,18 @@
-use gtk::prelude::*;
-use gtk::{init, main_iteration_do, Builder, Image, Window, WindowPosition};
-use static_assets::asset_str;
+use movie::actor;
 
-use std::sync::mpsc::{channel, Sender};
-use std::thread::{sleep, spawn};
+actor! {
+    GuiThread
+    public_visibility: true,
+    input:
+        ShowCrosshair,
+        HideCrosshair,
+    data:
+        pub crosshair_size: u16,
+    on_init:
+        use gtk::prelude::*;
+        use gtk::{init, main_iteration_do, Builder, Image, Window, WindowPosition};
+        use static_assets::asset_str;
 
-use crate::MOMENT;
-
-pub enum EventKind {
-    ShowCrosshair,
-    HideCrosshair,
-}
-
-pub fn gui_thread(crosshair_size: u16) -> Sender<EventKind> {
-    let (ev_tx, ev_rx) = channel();
-    spawn(move || {
         if init().is_err() {
             println!("Failed to initialize GTK.");
             return;
@@ -25,23 +23,14 @@ pub fn gui_thread(crosshair_size: u16) -> Sender<EventKind> {
 
         let crosshair: Window = builder.get_object("crosshair").unwrap();
         let icon: Image = builder.get_object("crosshair_icon").unwrap();
-        let margin = i32::from(crosshair_size);
+        let margin = i32::from(self.crosshair_size);
         icon.set_property_margin(margin);
-
-        loop {
-            while let Ok(ev) = ev_rx.try_recv() {
-                use self::EventKind::*;
-                match ev {
-                    ShowCrosshair => {
-                        crosshair.set_position(WindowPosition::Mouse);
-                        crosshair.show_all();
-                    }
-                    HideCrosshair => crosshair.hide(),
-                }
-            }
-            main_iteration_do(false);
-            sleep(MOMENT);
+    on_message:
+        ShowCrosshair => {
+            crosshair.set_position(WindowPosition::Mouse);
+            crosshair.show_all();
         }
-    });
-    ev_tx
+        HideCrosshair => crosshair.hide(),
+    on_tick:
+        main_iteration_do(false);
 }
