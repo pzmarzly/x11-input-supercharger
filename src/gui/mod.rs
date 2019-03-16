@@ -26,10 +26,7 @@ pub fn gui_thread(crosshair_size: u16) -> Sender<EventKind> {
         let crosshair: Window = builder.get_object("crosshair").unwrap();
         let icon: Image = builder.get_object("crosshair_icon").unwrap();
         let margin = i32::from(crosshair_size);
-        icon.set_margin_top(margin);
-        icon.set_margin_bottom(margin);
-        icon.set_margin_left(margin);
-        icon.set_margin_right(margin);
+        icon.set_property_margin(margin);
 
         loop {
             while let Ok(ev) = ev_rx.try_recv() {

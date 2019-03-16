@@ -11,10 +11,10 @@ license = "MIT"
 edition = "2018"
 
 [dependencies]
-serde = "1.0.78"
-serde_derive = "1.0.78"
-toml = "0.4.6"
-lazy-panic = "0.3.2"
+serde = "1.0.89"
+serde_derive = "1.0.89"
+toml = "0.5.0"
+lazy-panic = "1.0.0"
 const-cstr = "0.3.0"
 ctrlc = "3.1.1"
 static_assets = "0.1.1"
@@ -24,8 +24,8 @@ version = "2.18.1"
 features = ["xlib", "xinput"]
 
 [dependencies.gtk]
-version = "0.4.1"
-features = ["v3_10"]
+version = "0.6.0"
+features = ["v3_18"]
 
 [profile.dev]
 panic = "abort"
