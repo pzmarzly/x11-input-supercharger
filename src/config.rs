@@ -1,10 +1,10 @@
-use toml;
+use serde_derive::Deserialize;
 
 use std::fs::File;
 use std::io::prelude::*;
 
-use features::keyboard_click::KeyboardClickConfig;
-use features::scroll::ScrollConfig;
+use crate::features::keyboard_click::KeyboardClickConfig;
+use crate::features::scroll::ScrollConfig;
 
 #[derive(Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]

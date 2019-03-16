@@ -1,33 +1,18 @@
-#[macro_use]
-extern crate const_cstr;
-#[macro_use]
-extern crate lazy_panic;
-extern crate ctrlc;
-extern crate gtk;
-extern crate x11;
-#[macro_use]
-extern crate static_assets;
-
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate toml;
-
 mod config;
 mod features;
 mod gui;
 mod x;
 
-use lazy_panic::formatter;
+use lazy_panic::{formatter, set_panic_message};
 
 use std::alloc::System;
 use std::process::Command;
 use std::time::Duration;
 
-use config::Config;
-use features::keyboard_click::KeyboardClick;
-use features::scroll::Scroll;
-use x::xlib::XLib;
+use crate::config::Config;
+use crate::features::keyboard_click::KeyboardClick;
+use crate::features::scroll::Scroll;
+use crate::x::xlib::XLib;
 
 // Xlib sometimes chokes and crashes with jemalloc, while calling XNextEvent
 // TODO: check whether necessary anymore - it probably happened due to double freeing memory

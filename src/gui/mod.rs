@@ -1,10 +1,11 @@
 use gtk::prelude::*;
 use gtk::{init, main_iteration_do, Builder, Image, Window, WindowPosition};
+use static_assets::asset_str;
 
 use std::sync::mpsc::{channel, Sender};
 use std::thread::{sleep, spawn};
 
-use MOMENT;
+use crate::MOMENT;
 
 pub enum EventKind {
     ShowCrosshair,

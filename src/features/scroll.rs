@@ -1,10 +1,12 @@
+use serde_derive::Deserialize;
+
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::{sleep, spawn};
 
-use gui;
-use x::xdotool;
-use x::xlib::{Event, XLib};
-use MOMENT;
+use crate::gui;
+use crate::x::xdotool;
+use crate::x::xlib::{Event, XLib};
+use crate::MOMENT;
 
 #[derive(Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]

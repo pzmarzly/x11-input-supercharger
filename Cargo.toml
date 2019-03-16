@@ -8,6 +8,7 @@ keywords = ["x11", "mouse", "keyboard", "xserver", "tablet"]
 readme = "README.md"
 categories = ["command-line-utilities"]
 license = "MIT"
+edition = "2018"
 
 [dependencies]
 serde = "1.0.78"

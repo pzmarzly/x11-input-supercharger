@@ -1,13 +1,13 @@
-use ctrlc;
+use serde_derive::Deserialize;
 
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::{sleep, spawn};
 use std::time::{Duration, Instant};
 
-use x::xdotool;
-use x::xlib::{Event, XLib};
-use x::xmodmap;
-use MOMENT;
+use crate::x::xdotool;
+use crate::x::xlib::{Event, XLib};
+use crate::x::xmodmap;
+use crate::MOMENT;
 
 #[derive(Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
@@ -119,7 +119,8 @@ impl<'a> KeyboardClick<'a> {
             transaction.bind(key_unused2, &keys.key_unused2);
             transaction.commit();
             panic!("exiting...");
-        }).unwrap();
+        })
+        .unwrap();
     }
 }
 
