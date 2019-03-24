@@ -86,11 +86,11 @@ actor! {
     data:
         pub speed: i64,
     on_init:
-        let original_y = super::xdotool::get_current_y();
+        let original_y = xdotool::get_current_y();
         let mut progress_towards_next_event: i64 = 0;
     tick_interval: 16,
     on_tick:
-        let current_y = super::xdotool::get_current_y();
+        let current_y = xdotool::get_current_y();
         let diff = i64::from(current_y) - i64::from(original_y);
 
         if diff < 0 && progress_towards_next_event > 0 {
@@ -106,12 +106,12 @@ actor! {
         const THRESHOLD: i64 = 1_000_000_000;
         if progress_towards_next_event > THRESHOLD {
             while progress_towards_next_event > THRESHOLD {
-                super::xdotool::scroll_down();
+                xdotool::scroll_down();
                 progress_towards_next_event -= THRESHOLD;
             }
         } else if progress_towards_next_event < -THRESHOLD {
             while progress_towards_next_event < -THRESHOLD {
-                super::xdotool::scroll_up();
+                xdotool::scroll_up();
                 progress_towards_next_event += THRESHOLD;
             }
         }

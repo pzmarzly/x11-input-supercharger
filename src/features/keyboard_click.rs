@@ -131,13 +131,13 @@ actor! {
     input:
         Event,
     data:
-        pub timeout_tx: super::Sender<()>,
-        pub timeout_time: super::Duration,
+        pub timeout_tx: Sender<()>,
+        pub timeout_time: Duration,
     on_init:
-        let mut last_event_time = super::Instant::now();
+        let mut last_event_time = Instant::now();
         let mut warmup = true;
         let mut remapped = false;
-        let mut current_time = super::Instant::now();
+        let mut current_time = Instant::now();
     on_message:
         Event => {
             remapped = true;
@@ -145,7 +145,7 @@ actor! {
         }
     tick_interval: 50,
     on_tick:
-        current_time = super::Instant::now();
+        current_time = Instant::now();
         let delta_time = current_time.duration_since(last_event_time);
         if warmup {
             if delta_time > self.timeout_time {
