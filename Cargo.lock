@@ -258,21 +258,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "movie"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "movie_derive 0.1.0",
- "movie_utils 0.1.0",
+ "movie_derive 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "movie_utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "movie_derive"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "movie_utils 0.1.0",
+ "movie_utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "movie_utils"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "nix"
@@ -410,13 +413,13 @@ dependencies = [
 
 [[package]]
 name = "x11-input-supercharger"
-version = "0.4.0"
+version = "0.5.0-alpha"
 dependencies = [
  "const-cstr 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ctrlc 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "gtk 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy-panic 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "movie 0.1.0",
+ "movie 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
  "static_assets 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -449,6 +452,9 @@ dependencies = [
 "checksum lazy-panic 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "20b5b3a76b71eea7c715e733684c930189c74392e3eed2112bbbf7e794c0ea6d"
 "checksum lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bc5729f27f159ddd61f4df6228e827e86643d4d3e7c32183cb30a1c08f604a14"
 "checksum libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)" = "76e3a3ef172f1a0b9a9ff0dd1491ae5e6c948b94479a3021819ba7d860c8645d"
+"checksum movie 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f8cf3393b9e8a91eabc6c62259398299653db1327fbdc1885e783344c917cde4"
+"checksum movie_derive 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3b26f4f92f182b96a91978393f2b0159b45957f9f7671f3bac1ced13ec0c9170"
+"checksum movie_utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "41e8832b1512d3093ceec1deea9cea43ad46e0c74163f7cef303452a48d216c8"
 "checksum nix 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d37e713a259ff641624b6cb20e3b12b2952313ba36b6823c0f16e6cfd9e5de17"
 "checksum pango 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4e36b55d7cd522bd183efeb3dfabc547bda1f26eadf8a1241dac09ab3fd3242c"
 "checksum pango-sys 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "747ab9cd4d537e6dc5ef0e4308c10dde8b706673b0237fed4e056b8d2c0b23c8"
