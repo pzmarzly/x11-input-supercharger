@@ -70,6 +70,9 @@ impl<'a> Scroll<'a> {
             self.gui_thread.send(GuiThread::Input::HideCrosshair);
             scroll_thread.stop();
         } else {
+            dbg!(xdotool::get_current_window());
+            if xdotool::get_current_window().ends_with("Krita") { return; }
+
             self.gui_thread.send(GuiThread::Input::ShowCrosshair);
             self.scroll_thread = Some(
                 ScrollThread::Actor {

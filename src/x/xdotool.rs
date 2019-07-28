@@ -12,6 +12,18 @@ pub fn get_current_y() -> u16 {
     y[2..].parse().unwrap()
 }
 
+pub fn get_current_window() -> String {
+    let r = Command::new("xdotool")
+        .arg("getwindowfocus")
+        .arg("getwindowname")
+        .output()
+        .unwrap();
+    let stdout = r.stdout;
+    let mut stdout = String::from_utf8_lossy(&stdout).into_owned();
+    stdout.pop(); // \n
+    stdout
+}
+
 pub fn scroll_up() {
     scroll("4");
 }
